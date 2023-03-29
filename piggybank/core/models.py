@@ -23,7 +23,7 @@ class Transaction(models.Model):
     date = models.DateTimeField()
     description = models.TextField(blank=True)
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, related_name="transactions")
+        Category, on_delete=models.SET_NULL, related_name="transactions", null=True, blank=True)
 
     def __str__(self):
         return f"{self.amount} {self.currency.code} {self.date}"
