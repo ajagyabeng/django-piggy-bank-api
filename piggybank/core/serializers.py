@@ -1,9 +1,15 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 
-from core.views import CurrencyListAPIView
+from .models import Currency, Category
 
 
-class CurrencySerializer(ModelSerializer):
+class CurrencySerializer(serializers.ModelSerializer):
     class Meta:
-        model = CurrencyListAPIView
+        model = Currency
         fields = ("id", "code", "name")
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ("id", "name")
