@@ -1,11 +1,16 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
 from .models import Currency, Category, Transaction
-from .serializers import CurrencySerializer, CategorySerializer, TransactionSerializer, ReadTransactionSerializer, WriteTransactionSerializer
+from .serializers import CurrencySerializer, CategorySerializer, ReadTransactionSerializer, WriteTransactionSerializer, ReportEntrySerializer, ReportParamsSerializer
+from .reports import transaction_report
 
 
 class CurrencyListAPIView(ListAPIView):
@@ -14,18 +19,21 @@ class CurrencyListAPIView(ListAPIView):
     """
     queryset = Currency.objects.all()
     serializer_class = CurrencySerializer
+    pagination_class = None
 
 
 class CategoryModelViewSet(ModelViewSet):
-    queryset = Category.objects.all()
+    permission_classes = [IsAuthenticated]
     serializer_class = CategorySerializer
-    pagination_class = None
+
+    def get_queryset(self):
+        return Category.objects.filter(user=self.request.user)
 
 
 class TransactionModelViewSet(ModelViewSet):
     """When using a foreign key, tell django to pre-fetch them(select_related) prior to a query. It makes it faster"""
     # queryset = Transaction.objects.all()
-    queryset = Transaction.objects.select_related("currency", "category")
+    permission_classes = [IsAuthenticated]
 
     # FILTER
     filter_backends = [filters.SearchFilter,
@@ -34,8 +42,39 @@ class TransactionModelViewSet(ModelViewSet):
     ordering_fields = ["amount"]
     filterset_fields = ["currency__code"]
 
+    def get_queryset(self):
+        """
+        Returns items specific to only the user making the request.
+        Pre-fetches the foreign key objects when the app starts running prior to a request. It increases the speed of the request.
+        """
+        return Transaction.objects.select_related(
+            "currency", "category", "user").filter(user=self.request.user)
+
     def get_serializer_class(self):
         """ModelViewSet adds all the actions(List, Create, Retrieve, Update, Destroy) on the view"""
         if self.action in ("list", "retrieve"):
             return ReadTransactionSerializer
         return WriteTransactionSerializer
+
+
+class TransactionReportAPIView(APIView):
+    """Add view url in main urls.py"""
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        """Add in the context dict so the ReportParamSerializer can know how to get the User on the request."""
+        # pass in the request to be serialized
+        params_serializer = ReportParamsSerializer(
+            data=request.GET, context={"request": request})
+
+        params_serializer.is_valid(raise_exception=True)
+
+        # Save serialized params to be used in next step.
+        params = params_serializer.save()
+
+        # Pass in the serialized parameters from the request(start_date, end_date and the user). It uses the params to get the right transaction details for the report.
+        data = transaction_report(params)
+
+        # Takes the retuen transaction details and serializes it to be returned in the predifned report format.
+        serializer = ReportEntrySerializer(instance=data, many=True)
+        return Response(data=serializer.data)
