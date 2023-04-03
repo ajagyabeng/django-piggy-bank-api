@@ -130,19 +130,16 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 # Set the pagination for the api. This applies to the entire api views but can be exempted on views by setting pagination_class to None.
 # In case you want to add pagination on only one endpoint it can be imported in the views:
 # from rest_framework.pagination import PageNumberPagination.
 # And then set the pagination class to PageNumberPagination
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 50
-}
-
-
-# AUTHENTICATION
-REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-    ]
+    ],
+
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50
 }
