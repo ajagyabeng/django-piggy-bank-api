@@ -146,9 +146,10 @@ REST_FRAMEWORK = {
 
     'DEFAULT_RENDERER_CLASSES': [
         # The order of arrangement is very important. First is taken as default(JSONRenderer) unless otherwise specified in the request.
+        # This can be done on indivdual views if you dont want to expose all the views to the format: (render_class = [XMLRenderer])
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework_xml.renderers.XMLRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework_xml.renderers.XMLRenderer',
     ],
 
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
