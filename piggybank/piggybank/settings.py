@@ -145,7 +145,9 @@ REST_FRAMEWORK = {
     ],
 
     'DEFAULT_RENDERER_CLASSES': [
+        # The order of arrangement is very important. First is taken as default(JSONRenderer) unless otherwise specified in the request.
         'rest_framework.renderers.JSONRenderer',
+        'rest_framework_xml.renderers.XMLRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
 
