@@ -2,11 +2,12 @@ from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework_xml.renderers import XMLRenderer
 
 from .models import Currency, Category, Transaction
 from .serializers import CurrencySerializer, CategorySerializer, ReadTransactionSerializer, WriteTransactionSerializer, ReportEntrySerializer, ReportParamsSerializer
@@ -17,13 +18,17 @@ class CurrencyListAPIView(ListAPIView):
     """
     ListApiView: Handles get requests only.
     """
+    permission_classes = [AllowAny]
     queryset = Currency.objects.all()
     serializer_class = CurrencySerializer
     pagination_class = None
+    # Make currency be rendered as an xml format. When set like this, no other format specified in the request that isnt in the renderer_classes will work.
+    # renderer_classes = [XMLRenderer]
 
 
 class CategoryModelViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
+    # permission class has been set globally in settings.py hence there is no need to add it to the individual views.
     serializer_class = CategorySerializer
 
     def get_queryset(self):
@@ -31,9 +36,7 @@ class CategoryModelViewSet(ModelViewSet):
 
 
 class TransactionModelViewSet(ModelViewSet):
-    """When using a foreign key, tell django to pre-fetch them(select_related) prior to a query. It makes it faster"""
-    # queryset = Transaction.objects.all()
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     # FILTER
     filter_backends = [filters.SearchFilter,
@@ -59,7 +62,7 @@ class TransactionModelViewSet(ModelViewSet):
 
 class TransactionReportAPIView(APIView):
     """Add view url in main urls.py"""
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         """Add in the context dict so the ReportParamSerializer can know how to get the User on the request."""
