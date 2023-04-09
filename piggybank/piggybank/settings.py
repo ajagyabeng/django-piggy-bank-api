@@ -139,11 +139,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # from rest_framework.pagination import PageNumberPagination.
 # And then set the pagination class to PageNumberPagination
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
-
     'DEFAULT_RENDERER_CLASSES': [
         # The order of arrangement is very important. First is taken as default(JSONRenderer) unless otherwise specified in the request.
         # This can be done on indivdual views if you dont want to expose all the views to the format: (render_class = [XMLRenderer])
