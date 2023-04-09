@@ -12,6 +12,7 @@ router.register(r'transactions', views.TransactionModelViewSet,
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-auth/', include('rest_framework.urls')),
     path('currencies/', views.CurrencyListAPIView.as_view(), name='currencies'),
     path('login/', obtain_auth_token, name="obtain_auth_token"),
     path('report/', views.TransactionReportAPIView.as_view(), name="reports"),
